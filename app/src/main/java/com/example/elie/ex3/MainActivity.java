@@ -187,5 +187,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Log.e("tag", "elie created");
         fillListAndDisplay();
+        //TEST
     }
 }
