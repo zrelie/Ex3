@@ -55,7 +55,6 @@ class MyAdapter extends ArrayAdapter<Contact> {
 
     public MyAdapter(Context context, ArrayList<Contact> objectList) {
         super(context, 0, objectList);
-        Log.e("tag","in constructor adapter");
 
         myContext = context;
         contactsList = objectList;
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try
         {
             contactsDB = openOrCreateDatabase("Contacts", MODE_PRIVATE, null);
-            contactsDB.execSQL("CREATE TABLE IF NOT EXISTS ContactsList (name VARCHAR primary key, phone VARCHAR);");
+            contactsDB.execSQL("CREATE TABLE IF NOT EXISTS ContactsList (name TEXT UNIQUE, phone TEXT);");
             Toast.makeText(this,"DB created", Toast.LENGTH_LONG).show();
         }
 
@@ -140,10 +139,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.searchButton:
+                searchInDB();
                 break;
         }
     }
 
+    private void searchInDB() {
+        String name = inputName.getText().toString();
+        String phone = inputPhone.getText().toString();
+
+        String sql = "SELECT * FROM ContactsList WHERE INSTR(name,'" + name + "')<>0 AND INSTR(phone,'" + phone + "')<>0;";
+
+        try{
+            contactsDB.execSQL(sql);
+        }catch (Exception e){
+        }
+
+        fillListAndDisplay();
+    }
 
 
     private void fillListAndDisplay(){
@@ -169,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adapter = new MyAdapter(this, listItems);
         list.setAdapter(adapter);
 
-        //adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
     }
 
 
@@ -178,15 +191,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String name = inputName.getText().toString();
         String phone = inputPhone.getText().toString();
 
-        if (!name.isEmpty() && !phone.isEmpty()) {
+        if (!name.isEmpty()) {
 
-            String sql = "INSERT INTO ContactsList (name, phone) VALUES('" + name + "','" + phone + "')";
-            contactsDB.execSQL(sql);
+            String sql = "INSERT OR REPLACE INTO ContactsList (name, phone) VALUES('" + name + "','" + phone + "');";
 
+            try{
+                contactsDB.execSQL(sql);
+            }catch (Exception e){
+            }
         }
 
-        Log.e("tag", "elie created");
         fillListAndDisplay();
-        //TEST
     }
 }
