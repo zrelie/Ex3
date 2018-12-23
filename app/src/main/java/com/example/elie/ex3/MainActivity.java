@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this,"Error in creating the contact DB", Toast.LENGTH_LONG).show();
         }
 
-        fillListAndDisplay();
+        fillListAndDisplay(false, "","");
     }
 
     @Override
@@ -148,22 +148,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String name = inputName.getText().toString();
         String phone = inputPhone.getText().toString();
 
-        String sql = "SELECT * FROM ContactsList WHERE INSTR(name,'" + name + "')<>0 AND INSTR(phone,'" + phone + "')<>0;";
 
-        try{
-            contactsDB.execSQL(sql);
-        }catch (Exception e){
-        }
-
-        fillListAndDisplay();
+        fillListAndDisplay(true, name, phone);
     }
 
 
-    private void fillListAndDisplay(){
+    private void fillListAndDisplay(Boolean search, String name, String phone){
 
         listItems = new ArrayList<>();
+        String sql;
 
-        String sql = "SELECT * FROM contactsList";
+        if (search == false) {
+            sql = "SELECT * FROM contactsList";
+        }else {
+            sql = "SELECT * FROM ContactsList WHERE INSTR(name,'" + name + "')<>0 AND INSTR(phone,'" + phone + "')<>0;";
+        }
+
         Cursor cursor = contactsDB.rawQuery(sql, null);
 
         int nameCol = cursor.getColumnIndex("name");
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        fillListAndDisplay();
-        //TEST
+        fillListAndDisplay(false, "","");
+        //TEST1111
     }
 }
