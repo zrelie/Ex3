@@ -120,13 +120,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try
         {
             contactsDB = openOrCreateDatabase("Contacts", MODE_PRIVATE, null);
-            contactsDB.execSQL("CREATE TABLE IF NOT EXISTS ContactsList (name VARCHAR, phone VARCHAR);");
-
+            contactsDB.execSQL("CREATE TABLE IF NOT EXISTS ContactsList (name VARCHAR primary key, phone VARCHAR);");
+            Toast.makeText(this,"DB created", Toast.LENGTH_LONG).show();
         }
 
         catch(Exception e){
             Toast.makeText(this,"Error in creating the contact DB", Toast.LENGTH_LONG).show();
         }
+
+        fillListAndDisplay();
     }
 
     @Override
@@ -148,34 +150,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         listItems = new ArrayList<>();
 
-//        Cursor cursor = contactsDB.rawQuery("SELECT * FROM contacts", null);
-//
-//        int nameCol = cursor.getColumnIndex("name");
-//        int phoneCol = cursor.getColumnIndex("phone");
-//
-//        cursor.moveToFirst();
-//
-//        if(cursor != null && (cursor.getCount() > 0)){
-//            do{
-//
-//                listItems.add(new Contact(cursor.getString(nameCol), cursor.getString(phoneCol)));
-//
-//            }while(cursor.moveToNext());
-//        }
-//
-//        adapter = new MyAdapter(this, listItems);
-//        list.setAdapter(adapter);
-//
-//        adapter.notifyDataSetChanged();
+        String sql = "SELECT * FROM contactsList";
+        Cursor cursor = contactsDB.rawQuery(sql, null);
+
+        int nameCol = cursor.getColumnIndex("name");
+        int phoneCol = cursor.getColumnIndex("phone");
+
+        cursor.moveToFirst();
+
+        if(cursor != null && (cursor.getCount() > 0)){
+            do{
+
+                listItems.add(new Contact(cursor.getString(nameCol), cursor.getString(phoneCol)));
+
+            }while(cursor.moveToNext());
+        }
+
+        adapter = new MyAdapter(this, listItems);
+        list.setAdapter(adapter);
+
+        adapter.notifyDataSetChanged();
     }
 
 
 
     private void insertContact() {
-        String name = "Elie";//inputName.getText().toString();
-        String phone = "1234";//inputPhone.getText().toString();
+        String name = inputName.getText().toString();
+        String phone = inputPhone.getText().toString();
 
-        //contactsDB.execSQL("INSERT INTO ContactsList (name, phone) VALUES ('" + name + "', '" + phone + "');");
+        if (!name.isEmpty() && !phone.isEmpty()) {
+
+            String sql = "INSERT INTO ContactsList (name, phone) VALUES('" + name + "','" + phone + "')";
+            contactsDB.execSQL(sql);
+
+        }
+
         Log.e("tag", "elie created");
         fillListAndDisplay();
     }
