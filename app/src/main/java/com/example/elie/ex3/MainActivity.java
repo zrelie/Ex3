@@ -243,4 +243,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         list.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
+    //TEST
 }
