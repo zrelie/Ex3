@@ -1,8 +1,10 @@
 package com.example.elie.ex3;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,11 +65,10 @@ class MyAdapter extends ArrayAdapter<Contact> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View listItem  = convertView;
-
         if(listItem == null)
             listItem = LayoutInflater.from(myContext).inflate(R.layout.row_item,parent,false);
 
-        Contact current = contactsList.get(position);
+        final Contact current = contactsList.get(position);
 
         TextView name = listItem.findViewById(R.id.textView5);
         TextView phone = listItem.findViewById(R.id.textView4);
@@ -81,12 +82,19 @@ class MyAdapter extends ArrayAdapter<Contact> {
         else
             icon.setImageResource(R.drawable.call);
 
+        listItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(current.getPhone().equals("") == false) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:" + current.getPhone().toString()));
+                    myContext.startActivity(intent);
+                }
+            }
+        });
 
         return listItem;
     }
 }
-
-
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
