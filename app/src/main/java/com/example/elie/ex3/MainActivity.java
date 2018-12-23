@@ -1,8 +1,10 @@
 package com.example.elie.ex3;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +21,15 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+
+
+
+
+
+
+
+
 
 
 class Contact{
@@ -48,6 +59,18 @@ class Contact{
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 class MyAdapter extends ArrayAdapter<Contact> {
 
     private Context myContext;
@@ -67,7 +90,7 @@ class MyAdapter extends ArrayAdapter<Contact> {
         if(listItem == null)
             listItem = LayoutInflater.from(myContext).inflate(R.layout.row_item,parent,false);
 
-        Contact current = contactsList.get(position);
+        final Contact current = contactsList.get(position);
 
         TextView name = listItem.findViewById(R.id.textView5);
         TextView phone = listItem.findViewById(R.id.textView4);
@@ -81,10 +104,29 @@ class MyAdapter extends ArrayAdapter<Contact> {
         else
             icon.setImageResource(R.drawable.call);
 
+        listItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (current.getPhone().equals("") == false){
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:" + current.getPhone().toString()));
+                    myContext.startActivity(intent);
+                }
+            }
+        });
 
         return listItem;
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -120,11 +162,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             contactsDB = openOrCreateDatabase("Contacts", MODE_PRIVATE, null);
             contactsDB.execSQL("CREATE TABLE IF NOT EXISTS ContactsList (name TEXT UNIQUE, phone TEXT);");
-            Toast.makeText(this,"DB created", Toast.LENGTH_LONG).show();
-        }
-
-        catch(Exception e){
-            Toast.makeText(this,"Error in creating the contact DB", Toast.LENGTH_LONG).show();
+        } catch(Exception e){
+            Toast.makeText(this,"Error in creating the contacts DB", Toast.LENGTH_LONG).show();
         }
 
         fillListAndDisplay(false, "","");
@@ -153,38 +192,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void fillListAndDisplay(Boolean search, String name, String phone){
-
-        listItems = new ArrayList<>();
-        String sql;
-
-        if (search == false) {
-            sql = "SELECT * FROM contactsList";
-        }else {
-            sql = "SELECT * FROM ContactsList WHERE INSTR(name,'" + name + "')<>0 AND INSTR(phone,'" + phone + "')<>0;";
-        }
-
-        Cursor cursor = contactsDB.rawQuery(sql, null);
-
-        int nameCol = cursor.getColumnIndex("name");
-        int phoneCol = cursor.getColumnIndex("phone");
-
-        cursor.moveToFirst();
-
-        if(cursor != null && (cursor.getCount() > 0)){
-            do{
-
-                listItems.add(new Contact(cursor.getString(nameCol), cursor.getString(phoneCol)));
-
-            }while(cursor.moveToNext());
-        }
-
-        adapter = new MyAdapter(this, listItems);
-        list.setAdapter(adapter);
-
-        adapter.notifyDataSetChanged();
-    }
-
 
 
     private void insertContact() {
@@ -202,6 +209,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         fillListAndDisplay(false, "","");
-        //TEST1111
+    }
+
+
+
+
+
+
+    private void fillListAndDisplay(Boolean search, String name, String phone){
+
+        listItems = new ArrayList<>();
+        String sql;
+
+        if (search)
+            sql = "SELECT * FROM ContactsList WHERE INSTR(name,'" + name + "')<>0 AND INSTR(phone,'" + phone + "')<>0;";
+        else
+            sql = "SELECT * FROM contactsList";
+
+        Cursor cursor = contactsDB.rawQuery(sql, null);
+
+        int nameCol = cursor.getColumnIndex("name");
+        int phoneCol = cursor.getColumnIndex("phone");
+
+        cursor.moveToFirst();
+
+        if(cursor != null && (cursor.getCount() > 0)){
+            do{
+                listItems.add(new Contact(cursor.getString(nameCol), cursor.getString(phoneCol)));
+            }while(cursor.moveToNext());
+        }
+
+        adapter = new MyAdapter(this, listItems);
+        list.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 }
